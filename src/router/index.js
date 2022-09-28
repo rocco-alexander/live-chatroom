@@ -1,19 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import Welcome from '../views/Welcome.vue'
+import Chatroom from '../views/Chatroom.vue'
+import { projectAuth } from '@/firebase/config'
+
+const requireAuth = (to,from,next) =>{
+  let user = projectAuth.currentUser
+  console.log('current user in auth guard', user )
+  if(!user){
+    next({name:'home'})
+  }else{
+    next()
+  }
+}
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: Welcome
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/chatroom',
+    name: 'chatroom',
+    component: Chatroom,
+    beforeEnter: requireAuth
   }
 ]
 
