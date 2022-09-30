@@ -1,5 +1,5 @@
 import { projectFirestore } from "@/firebase/config";
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 
 // we can use this to get a collection and is documents in any view or component
 // literally outputs the whole collection when its snapshot changes
@@ -11,7 +11,7 @@ const getCollection = (collection)=>{
         .orderBy('createdAt')
 
     // real time changes are made here 
-    collectionRef.onSnapshot((snap)=>{
+    const unsub = collectionRef.onSnapshot((snap)=>{
         let results = []
         snap.docs.forEach(doc=>{
             // if this is true ===> run this code
@@ -24,6 +24,11 @@ const getCollection = (collection)=>{
         console.log(err.message)
         documents.value = null
         error.value = 'could not fetch data'
+    })
+
+    watchEffect((onInvalidate)=>{
+        // unsub from previous collection watcher
+        onInvalidate(()=> unsub())
     })
     return {documents, error}
 }

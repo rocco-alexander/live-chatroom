@@ -1,7 +1,7 @@
 <template>
   <div class="chat-window">
     <div v-if="error">{{error}}</div>
-    <div v-if="documents" class="messages">
+    <div v-if="documents" class="messages" ref="messages">
         <div v-for="doc in formattedDocuments" :key="doc.id" class="single">
             <span class="created-at">{{doc.createdAt}}</span> 
             <span class="name">{{doc.name}}:</span>
@@ -14,11 +14,12 @@
 <script>    
 import getCollection from '@/composables/getCollection';
 import {formatDistanceToNow} from 'date-fns'
-import { computed } from '@vue/runtime-core';
+import { computed, onUpdated, ref } from '@vue/runtime-core';
 export default {
     setup(){
         // Variables
         const {error, documents} = getCollection('messages')
+        
         const formattedDocuments = computed(()=>{
             if(documents.value){
                 return documents.value.map((doc)=>{
@@ -27,8 +28,13 @@ export default {
                 })   
             }
         })
+        
+        const messages = ref(null)
+        onUpdated(()=>{
+            messages.value.scrollTop = messages.value.scrollHeight
+        })
         // Methods
-        return{error,documents,formattedDocuments}
+        return{error,documents,messages,formattedDocuments}
     }
 }
 </script>
